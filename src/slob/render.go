@@ -1,9 +1,6 @@
 package slob
 
-import (
-	"os"
-	"text/template"
-)
+import "text/template"
 
 type render struct {
 	TmplPath string
@@ -22,12 +19,17 @@ func (r *render) Set(name string, param interface{}) *render {
 	return r
 }
 
-func (r *render) Execute() {
+func (r *render) Execute(structName string) {
 	tmpl, err := template.ParseGlob(r.TmplPath)
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(os.Stdout, r.Data)
+	fd, err := GenFileHandle(structName)
+	defer fd.Close()
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl.Execute(fd, r.Data)
 	if err != nil {
 		panic(err)
 	}

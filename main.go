@@ -23,6 +23,7 @@ type ADCF struct {
 }
 
 func main() {
+	slob.SetGenParams("slob_gen", "", "", "go")
 	obj := new(ADCF)
 	stu := new(Struct)
 	typ := reflect.TypeOf(obj).Elem()
@@ -44,7 +45,7 @@ func main() {
 
 	slob.Render("tpl/services.tpl").Set("pkgName", "testPkg").
 		Set("struct", stu).
-		Execute()
+		Execute(stu.Name)
 
 }
 
