@@ -1,10 +1,12 @@
 package {{.pkgName}}
 
+{{if .importPkg}}
 import (
 	{{range .importPkg}}
 		{{.path}}
 	{{end}}
 )
+{{end}}
 
 
 func Get{{.struct.Name}}ById(id int) (item *m.{{.struct.Name}}, err error) {

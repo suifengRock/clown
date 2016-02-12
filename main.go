@@ -1,10 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"reflect"
-	"slob"
-)
+import "slob"
 
 type Struct struct {
 	Name   string
@@ -25,27 +21,9 @@ type ADCF struct {
 func main() {
 	slob.SetGenParams("slob_gen", "", "", "go")
 	obj := new(ADCF)
-	stu := new(Struct)
-	typ := reflect.TypeOf(obj).Elem()
-	stu.Name = typ.Name()
-	tmp := typ.NumField()
-	fields := make([]*Field, 0)
-	for i := 0; i < tmp; i++ {
-		field := typ.Field(i)
-		fld := new(Field)
-		fld.Name = field.Name
-		fld.Type = field.Type.Name()
-		fields = append(fields, fld)
-	}
-	stu.Fields = fields
-	fmt.Println("%s", stu.Name)
-	for _, field := range stu.Fields {
-		fmt.Println("%s:%s", field.Name, field.Type)
-	}
 
-	slob.Render("tpl/services.tpl").Set("pkgName", "testPkg").
-		Set("struct", stu).
-		Execute(stu.Name)
+	slob.Render("tpl/services.tpl").Read(obj).
+		Execute()
 
 }
 
