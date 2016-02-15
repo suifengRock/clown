@@ -35,6 +35,10 @@ func SetFileType(fileType string) {
 	genParams.FileType = fileType
 }
 
+func GetGenDir() string {
+	return genParams.Dir
+}
+
 func getFilePath(structName string) string {
 	fileName := structName
 	if genParams.Prefix != "" {
@@ -66,5 +70,5 @@ func GenFileHandle(structName string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	return os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0777)
+	return os.OpenFile(fileName, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777)
 }

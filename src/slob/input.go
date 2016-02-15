@@ -17,8 +17,34 @@ type Struct struct {
 }
 
 type Field struct {
-	Name string
-	Type string
+	Name      string
+	Type      string
+	TransName string
+}
+
+var skipFieldsList = map[string]int{
+	"CreateAt": 1,
+	"UpdateAt": 1,
+	"DeleteAt": 1,
+}
+
+func SkipFields(name string) bool {
+	_, ok := skipFieldsList[name]
+	return ok
+}
+
+func TransName(name string) (transStr string) {
+	newName := make([]rune, 0)
+	for idx, chr := range name {
+		if 'A' <= chr && 'Z' >= chr {
+			if idx > 0 {
+				newName = append(newName, '_')
+			}
+			chr -= ('A' - 'a')
+		}
+		newName = append(newName, chr)
+	}
+	return string(newName)
 }
 
 func (i *StructInput) Read(model ...interface{}) {
@@ -32,8 +58,12 @@ func (i *StructInput) Read(model ...interface{}) {
 		for i := 0; i < tmp; i++ {
 			field := typ.Field(i)
 			fld := new(Field)
+			if SkipFields(field.Name) {
+				continue
+			}
 			fld.Name = field.Name
 			fld.Type = field.Type.Name()
+			fld.TransName = TransName(fld.Name)
 			fields = append(fields, fld)
 		}
 		st.Fields = fields

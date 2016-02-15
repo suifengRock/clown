@@ -1,6 +1,10 @@
 package slob
 
-import "text/template"
+import (
+	"fmt"
+	"os/exec"
+	"text/template"
+)
 
 type render struct {
 	TmplPath    string
@@ -55,4 +59,13 @@ func (r *render) Read(obj ...interface{}) *render {
 
 func (r *render) Execute() {
 	r.input.Render(r)
+	gofmt()
+}
+
+func gofmt() {
+	cmd := exec.Command("gofmt", "-w", fmt.Sprintf("%s/", GetGenDir()))
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("gofmt err , please run : gofmt -w ", fmt.Sprintf("%s/", GetGenDir()))
+	}
 }
