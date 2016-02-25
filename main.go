@@ -25,7 +25,7 @@ func main() {
 	slob.SetGenParams("slob_gen", "", "", "go")
 	obj := new(ADCF)
 
-	slob.Render("tpl/services.tpl").Read(obj).Set("pkgName", "test").
+	slob.Render("tpl/dao.tpl").Read(obj).Set("pkgName", "test").
 		Execute()
 
 }

@@ -74,7 +74,8 @@ func (i *StructInput) Read(model ...interface{}) {
 
 func (i *StructInput) Render(r *render) {
 	for _, obj := range i.structSet {
-		r.SetFileName(obj.Name).Set("struct", obj).execute()
+		fileName := TransName(obj.Name)
+		r.SetFileName(fileName).Set("struct", obj).execute()
 	}
 }
 
