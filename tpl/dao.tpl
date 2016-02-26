@@ -3,7 +3,7 @@ package dao
 import (
 	"github.com/go-xorm/xorm"
 
-	m "bizcore/zj2/models"
+	m "common/models"
 	// "common/consts"
 	"common/log"
 	"common/utils"
@@ -19,8 +19,8 @@ type search{{.struct.Name}}Filter struct {
 	Unscoped bool
 }
 
-type search{{.struct.Name}}PagerFilter struct {
-	searchProjCheckTaskFilter
+type search{{.struct.Name}}PageFilter struct {
+	search{{.struct.Name}}Filter
 	Page     int
 	PageSize int
 }
@@ -39,14 +39,14 @@ func (f search{{.struct.Name}}Filter) GetQuery(tx *xorm.Session) *xorm.Session {
 		{{if .Type|eq "string"}}
 			if f.HasField("{{.Name}}") && len(f.{{.Name}})>0 {
 				name := fmt.Sprintf("%%%s%%", f.{{.Name}})
-				tx.And("{{.TransName}} like ?", f.{{.Name}})
+				tx.And("{{.TransName}} like ?", name)
 			}
 		{{end}}
 		{{if .Type|eq "int"}} 
 			if f.HasField("{{.Name}}") {
 				tx.And("{{.TransName}} = ?", f.{{.Name}})
 			}
-			if f.HasField("{{.Name}}_In") && len(f.{{.Name}})>0 {
+			if f.HasField("{{.Name}}_In") && len(f.{{.Name}}_In)>0 {
 				tx.In("{{.TransName}}", f.{{.Name}}_In)
 			}
 		{{end}}
@@ -58,7 +58,7 @@ func (f search{{.struct.Name}}Filter) GetQuery(tx *xorm.Session) *xorm.Session {
 	return tx
 }
 
-func (f *search{{.struct.Name}}PagerFilter) GetPageQuery(tx *xorm.Session) *xorm.Session {
+func (f *search{{.struct.Name}}PageFilter) GetPageQuery(tx *xorm.Session) *xorm.Session {
 	tx = f.GetQuery(tx)
 
 	offset := (f.Page - 1) * f.PageSize
@@ -88,7 +88,7 @@ func (dao *Dao) get{{.struct.Name}}(f *search{{.struct.Name}}Filter) (*m.{{.stru
 	return item,nil
 }
 
-func (dao *Dao) search{{.struct.Name}}Pager(f *search{{.struct.Name}}PagerFilter) (items []*m.{{.struct.Name}}, err error) {
+func (dao *Dao) search{{.struct.Name}}Page(f *search{{.struct.Name}}PageFilter) (items []*m.{{.struct.Name}}, err error) {
 	items = make([]*m.{{.struct.Name}}, 0)
 	if err = f.GetPageQuery(dao.getDb()).Find(&items); err != nil {
 		log.Error(err.Error())
@@ -100,33 +100,36 @@ func (dao *Dao) search{{.struct.Name}}Pager(f *search{{.struct.Name}}PagerFilter
 
 {{range .struct.Fields}}
 func (dao *Dao) Get{{$.struct.Name}}By{{.Name}} ({{.TransName}} {{.Type}}) (*m.{{$.struct.Name}}, error){
-	f :=search{{$.struct.Name}}Filter{ {{.Name}}:{{.TransName}} }
+	f := &search{{$.struct.Name}}Filter{ {{.Name}}:{{.TransName}} }
 	f.Fields("{{.Name}}")
 	return dao.get{{$.struct.Name}}(f)
 }
 
 func (dao *Dao) Get{{$.struct.Name}}UnscopedBy{{.Name}} ({{.TransName}} {{.Type}}) (*m.{{$.struct.Name}}, error){
-	f :=search{{$.struct.Name}}Filter{Unscoped:true,{{.Name}}:{{.TransName}}}
+	f := &search{{$.struct.Name}}Filter{Unscoped:true,{{.Name}}:{{.TransName}}}
 	f.Fields("{{.Name}}", "Unscoped")
 	return dao.get{{$.struct.Name}}(f)
 }
 
 {{if .Type|eq "int"}} 
 func (dao *Dao) Search{{$.struct.Name}}By{{.Name}}s ({{.TransName}}_in []int) ([]*m.{{$.struct.Name}}, error){
-	f :=search{{$.struct.Name}}Filter{ {{.Name}}_In:{{.TransName}}_in }
+	f := &search{{$.struct.Name}}Filter{ {{.Name}}_In:{{.TransName}}_in }
 	f.Fields("{{.Name}}_In")
 	return dao.search{{$.struct.Name}}(f)
 }
 
 func (dao *Dao) Search{{$.struct.Name}}PageBy{{.Name}}s ({{.TransName}}_in []int,page int, pageSize int) ([]*m.{{$.struct.Name}}, error){
-	f :=search{{$.struct.Name}}Filter{ {{.Name}}_In:{{.TransName}}_in,Page:page,PageSize:pageSize}
+	f := new(search{{$.struct.Name}}PageFilter)
+	f.{{.Name}}_In = {{.TransName}}_in
+	f.Page = page
+	f.PageSize = pageSize
 	f.Fields("{{.Name}}_In")
 	return dao.search{{$.struct.Name}}Page(f)
 }
 
-func (dao *Dao) Search{{$.struct.Name}}UnscopedBy{{.Name}}s ({{.TransName}}s []int) ([]*m.{{$.struct.Name}}, error){
-	f :=search{{$.struct.Name}}Filter{Unscoped:true,{{.Name}}:{{.TransName}}}
-	f.Fields("{{.Name}}", "Unscoped")
+func (dao *Dao) Search{{$.struct.Name}}UnscopedBy{{.Name}}s ({{.TransName}}_in []int) ([]*m.{{$.struct.Name}}, error){
+	f := &search{{$.struct.Name}}Filter{Unscoped:true,{{.Name}}_In:{{.TransName}}_in}
+	f.Fields("{{.Name}}_In", "Unscoped")
 	return dao.search{{$.struct.Name}}(f)
 }
 {{end}}
@@ -157,4 +160,10 @@ func (dao *Dao) Delete{{.struct.Name}}(id int) (err error) {
 	}
 	return
 }
+
+//==================================================================
+
+
+
+
 
