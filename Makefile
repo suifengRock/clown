@@ -10,3 +10,8 @@ images:
 run:
 	docker run -it -v /Users/suifengluo/Documents/gitlab_work/clown:/gopath --rm clown
 docker: images run
+
+
+
+example:
+	go run src/slob/example/run/example.go

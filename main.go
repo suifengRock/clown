@@ -1,6 +1,8 @@
 package main
 
-import "slob"
+import (
+"slob"
+)
 
 type Struct struct {
 	Name   string
@@ -21,11 +23,37 @@ type ADCF struct {
 	DeleteAt int
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 func main() {
-	slob.SetGenParams("slob_gen", "", "", "go")
+	  slob.SetGenParams("slob_gen", "", "", "go")
 	obj := new(ADCF)
 
 	slob.Render("tpl/dao.tpl").Read(obj).Set("pkgName", "test").
 		Execute()
 
 }
+
