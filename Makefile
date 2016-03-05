@@ -15,3 +15,6 @@ docker: images run
 
 example:
 	go run src/slob/example/run/example.go
+
+example_gen_run:
+	go run src/slob/example/gen/prefix_person_suffix.go

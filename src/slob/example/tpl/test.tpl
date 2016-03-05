@@ -6,7 +6,7 @@ import(
 
 
 func main(){
-	fmt.Println({{.struct.Name}})
+	fmt.Println("{{.struct.Name}}")
 
 	{{range .struct.Fields}}
 		fmt.Println("the ","{{.Name}}"," is ", "{{.Type}}")	

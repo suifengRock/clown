@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	fmt.Println(Person)
+	fmt.Println("Person")
 
 	fmt.Println("the ", "Name", " is ", "string")
 
